@@ -82,29 +82,33 @@ class TaskProvider with ChangeNotifier {
     }).toList();
     prefs.setString('tasks', json.encode(tasks));
   }
-
   Future<void> fetchPhotos() async {
-    _isLoading = true;
-    notifyListeners();
+    try {
+      _isLoading = true;
+      notifyListeners();
 
-    final response = await http
-        .get(Uri.parse('https://jsonplaceholder.typicode.com/photos'));
+      final response = await http
+          .get(Uri.parse('https://jsonplaceholder.typicode.com/photos'));
 
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      _photos = data.take(20).map((photo) => Photo.fromJson(photo)).toList();
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        _photos = data.take(20).map((photo) => Photo.fromJson(photo)).toList();
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('photos',
-          json.encode(_photos.map((photo) => photo.toJson()).toList()));
-    } else {
-      throw Exception('Failed to load photos');
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('photos',
+            json.encode(_photos.map((photo) => photo.toJson()).toList()));
+      } else {
+        print('Failed to load photos. Status code: ${response.statusCode}');
+        throw Exception('Failed to load photos');
+      }
+    } catch (error) {
+      print('Error fetching photos: $error');
+      // Optionally, you can notify the user about the error through a UI message.
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
-
   void loadPhotos() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? photosString = prefs.getString('photos');

@@ -2,7 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/task_provider.dart';
 
-class ApiDataScreen extends StatelessWidget {
+class ApiDataScreen extends StatefulWidget {
+  @override
+  State<ApiDataScreen> createState() => _ApiDataScreenState();
+}
+
+class _ApiDataScreenState extends State<ApiDataScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch photos when the screen is initialized
+    Provider.of<TaskProvider>(context, listen: false).fetchPhotos();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
